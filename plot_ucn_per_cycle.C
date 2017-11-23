@@ -87,7 +87,7 @@ void plot_ucn_per_cycle(std::string infile){
     numberEventsPerCycle.push_back(0);
     // Find the temperature for this cycle.
     double temperature = 0;
-    for(unsigned int i = 0; i < sourceReadTimes.size()-1; i++){
+    for( int i = 0; i < sourceReadTimes.size()-1; i++){
       if(cycleStart >= sourceReadTimes[i] && cycleStart < sourceReadTimes[i+1]){
         temperature = ts27_temperaturs[i];
         break;
