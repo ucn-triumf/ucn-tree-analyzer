@@ -97,8 +97,10 @@ void plot_ucn_per_cycle(std::string infile){
     temperaturePerCycle.push_back(temperature);
   }
 
+  std::cout << "The last cycle started (irradiation ended) at  " << (int)cycleStart << " sec." << std::endl;
   std::cout << "The delay time for the last cycle was " << delayTime << " sec." << std::endl;
-  
+  std::cout << "The valve open time for the last cycle was " << openTime << " sec." << std::endl;
+
   std::cout << "Finished transition loop " << std::endl;
   
   //  Now loop over the UCN hits.  Calculate the right number of hits for each cycle.
