@@ -39,10 +39,15 @@ void plot_ucn_per_cycle(std::string infile){
   std::string *shifter = new std::string(); 
   headerTree->SetBranchAddress("shifter",&shifter);
 
+  std::string *expNumber = new std::string(); 
+  headerTree->SetBranchAddress("experimentNumber",&expNumber);
+  
+  
   headerTree->GetEntry(0);
   
   std::cout << "Run comment: " << *comment << std::endl;
   std::cout << "Shifter: " << *shifter << std::endl;
+  std::cout << "ExpNumber: " << *expNumber << std::endl;
   std::cout <<"Done... " << std::endl;
   
   // Loop over the UCN source EPICS reads, saving the temperature
