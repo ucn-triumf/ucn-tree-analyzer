@@ -133,7 +133,7 @@ void plot_ucn_per_cycle(std::string infile){
     // Check if this is a UCN hit.
     if(tIsUCN && cycleStartTimes.size() > 1){
       // check which cycle this is in...
-      for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
+      for(int i = 0; i < cycleStartTimes.size()-1; i++){
 	//std::cout << tUnixTimePrecise << " " <<  cycleStartTimes[i] << " " << cycleStartTimes[i+1] << std::endl;
 	if(tUnixTimePrecise >= cycleStartTimes[i] && tUnixTimePrecise < cycleStartTimes[i+1]){
 	  numberEventsPerCycle[i]++;
@@ -162,7 +162,7 @@ void plot_ucn_per_cycle(std::string infile){
 
   TGraph *ucn_per_cycle = new TGraph();
   if(cycleStartTimes.size() > 0){
-    for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
+    for( int i = 0; i < cycleStartTimes.size()-1; i++){
       ucn_per_cycle->SetPoint(i,cycleStartTimes[i],numberEventsPerCycle[i]);
     }
 
@@ -175,7 +175,7 @@ void plot_ucn_per_cycle(std::string infile){
   TCanvas *c3 = new TCanvas("c3","UCN counts vs TS27 temperature");
   TGraph *ucn_vs_temperature = new TGraph();
   if(cycleStartTimes.size() > 0){
-    for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
+    for( int i = 0; i < cycleStartTimes.size()-1; i++){
       ucn_vs_temperature->SetPoint(i,temperaturePerCycle[i],numberEventsPerCycle[i]);
     }
     
