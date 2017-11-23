@@ -115,7 +115,14 @@ void plot_ucn_per_cycle(std::string infile){
   uin->SetBranchAddress("tChargeL",&tChargeL);
 
   // Make on plot showing PSD vs QL for channel 0.
-  TH2F *psd_vs_ql = new TH2F("psd_vs_ql","PSD vs QL",200,0,15000,200,-1,1);
+  TH2F *psd_vs_ql[16];
+  for(int i = 0; i < 16; i++){
+    char name[100],title[100];
+    sprintf(name,"psd_vs_ql_%i",i);
+    sprintf(title,"PSD vs QL ch %i",i);
+    
+    psd_vs_ql[i] = new TH2F(name,title,200,0,15000,200,-1,1);
+  }
 
   // pointer for closeSourceEPics reads;
   int source_index = 0;
@@ -136,17 +143,19 @@ void plot_ucn_per_cycle(std::string infile){
       
     }
 
-    if(tChannel == 0){
-      psd_vs_ql->Fill(tChargeL,tPSD);
-    }
+    psd_vs_ql[tChannel]->Fill(tChargeL,tPSD);
     
   }
 
   std::cout << "Finished Li6 loop " << std::endl;
 
   // Plot PSD vs QL
-  TCanvas *c1 = new TCanvas("c1","PSD vs QL");
-  psd_vs_ql->Draw("COL");
+  TCanvas *c1 = new TCanvas("c1","PSD vs QL",1200,800);
+  c1->Divide(4,3);
+  for(int i = 0; i < 12; i++){
+    c1->cd(i+1);
+    psd_vs_ql[i]->Draw("COL");
+  }
 
   // Plot the UCN counts per cycle
   TCanvas *c2 = new TCanvas("c2","UCN vs cycle");
