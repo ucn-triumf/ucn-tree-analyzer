@@ -7,7 +7,7 @@ void plot_ucn_per_cycle(std::string infile){
   
   
   ULong64_t eventTot;
-  double cycleStart;
+  double cycleStart, valveOpenTime, valveCloseTime, delayTime, openTime;
 
   TFile* fin = new TFile(infile.c_str(),"READ");
   if (fin == NULL) {
@@ -74,7 +74,12 @@ void plot_ucn_per_cycle(std::string infile){
   std::vector<int> numberEventsPerCycle;
   std::vector<double> temperaturePerCycle;
 
-  truntime->SetBranchAddress("tUnixTimeTransition",&cycleStart);
+  truntime->SetBranchAddress("cycleStartTime",&cycleStart); // time that cycle started (end of irradiation)
+  truntime->SetBranchAddress("cycleValveOpenTime",&valveOpenTime); // time that valve opened
+  truntime->SetBranchAddress("cycleValveCloseTime",&valveCloseTime); // time that valve closed
+  truntime->SetBranchAddress("cycleDelayTime",&delayTime);   // delay time (between cycle start and valve open)
+  truntime->SetBranchAddress("cycleOpenInterval",&openTime); // valve open time
+  
   eventTot = (Double_t)truntime->GetEntries();
   for(ULong64_t j=0;j<eventTot;j++) {
     truntime->GetEvent(j);
@@ -92,6 +97,8 @@ void plot_ucn_per_cycle(std::string infile){
     temperaturePerCycle.push_back(temperature);
   }
 
+  std::cout << "The delay time for the last cycle was " << delayTime << " sec." << std::endl;
+  
   std::cout << "Finished transition loop " << std::endl;
   
   //  Now loop over the UCN hits.  Calculate the right number of hits for each cycle.
