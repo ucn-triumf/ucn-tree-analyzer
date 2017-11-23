@@ -20,16 +20,31 @@ void plot_ucn_per_cycle(std::string infile){
     return;
   }
 
-  fin->ls();
+  //fin->ls();
   
   
   TTree* uin = (TTree*) fin->Get("UCNHits_Li-6");
+  TTree* headerTree = (TTree*) fin->Get("headerTree");
   TTree* truntime = (TTree*) fin->Get("RunTransitions_Li-6");
   TTree* sourceTree = (TTree*) fin->Get("SourceEpicsTree");
   uin->Print();  
   truntime->Print();
+  headerTree->Print();
 
+  
+  // Dump the header information
+  std::string *comment = new std::string(); 
+  headerTree->SetBranchAddress("comment",&comment);
+  
+  std::string *shifter = new std::string(); 
+  headerTree->SetBranchAddress("shifter",&shifter);
 
+  headerTree->GetEntry(0);
+  
+  std::cout << "Run comment: " << *comment << std::endl;
+  std::cout << "Shifter: " << *shifter << std::endl;
+  std::cout <<"Done... " << std::endl;
+  
   // Loop over the UCN source EPICS reads, saving the temperature
   std::vector<double> sourceReadTimes;
   std::vector<double> ts27_temperaturs;
@@ -46,6 +61,8 @@ void plot_ucn_per_cycle(std::string infile){
     ts27_temperaturs.push_back(UCN_D2O_TS7_RDTEMP);
   }
 
+
+  std::cout << "Finished SourceEpics loop " << std::endl;
   
   // Loop over the transitions, save the start of each transition and make a counter.
   std::vector<double> cycleStartTimes;
@@ -70,7 +87,7 @@ void plot_ucn_per_cycle(std::string infile){
     temperaturePerCycle.push_back(temperature);
   }
 
-
+  std::cout << "Finished transition loop " << std::endl;
   
   //  Now loop over the UCN hits.  Calculate the right number of hits for each cycle.
   double tUnixTimePrecise;
@@ -93,7 +110,7 @@ void plot_ucn_per_cycle(std::string infile){
   for(ULong64_t j=0;j<eventTot;j++) {
     uin->GetEvent(j);
     // Check if this is a UCN hit.
-    if(tIsUCN){
+    if(tIsUCN && cycleStartTimes.size() > 1){
       // check which cycle this is in...
       for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
 	//std::cout << tUnixTimePrecise << " " <<  cycleStartTimes[i] << " " << cycleStartTimes[i+1] << std::endl;
@@ -111,34 +128,40 @@ void plot_ucn_per_cycle(std::string infile){
     
   }
 
+  std::cout << "Finished Li6 loop " << std::endl;
 
   // Plot PSD vs QL
   TCanvas *c1 = new TCanvas("c1","PSD vs QL");
   psd_vs_ql->Draw("COL");
 
   // Plot the UCN counts per cycle
-  TGraph *ucn_per_cycle = new TGraph();
-  for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
-    ucn_per_cycle->SetPoint(i,cycleStartTimes[i],numberEventsPerCycle[i]);
-  }
   TCanvas *c2 = new TCanvas("c2","UCN vs cycle");
 
-  ucn_per_cycle->Draw("AP*");
-  ucn_per_cycle->GetXaxis()->SetTitle("Cycle time");
-  ucn_per_cycle->GetYaxis()->SetTitle("Number of UCN");
+  TGraph *ucn_per_cycle = new TGraph();
+  if(cycleStartTimes.size() > 0){
+    for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
+      ucn_per_cycle->SetPoint(i,cycleStartTimes[i],numberEventsPerCycle[i]);
+    }
 
+    ucn_per_cycle->Draw("AP*");
+    ucn_per_cycle->GetXaxis()->SetTitle("Cycle time");
+    ucn_per_cycle->GetYaxis()->SetTitle("Number of UCN");
+  }
 
   // Plot the UCN counts vs temperature
-  TGraph *ucn_vs_temperature = new TGraph();
-  for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
-    ucn_vs_temperature->SetPoint(i,temperaturePerCycle[i],numberEventsPerCycle[i]);
-  }
   TCanvas *c3 = new TCanvas("c3","UCN counts vs TS27 temperature");
-
-  ucn_vs_temperature->Draw("AP*");
-  ucn_vs_temperature->GetXaxis()->SetTitle("TS27 temperature");
-  ucn_vs_temperature->GetYaxis()->SetTitle("Number of UCN");
-
+  TGraph *ucn_vs_temperature = new TGraph();
+  if(cycleStartTimes.size() > 0){
+    for(unsigned int i = 0; i < cycleStartTimes.size()-1; i++){
+      ucn_vs_temperature->SetPoint(i,temperaturePerCycle[i],numberEventsPerCycle[i]);
+    }
+    
+    
+    
+    ucn_vs_temperature->Draw("AP*");
+    ucn_vs_temperature->GetXaxis()->SetTitle("TS27 temperature");
+    ucn_vs_temperature->GetYaxis()->SetTitle("Number of UCN");
+  }
 
 
 
